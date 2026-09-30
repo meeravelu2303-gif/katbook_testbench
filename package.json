@@ -1,0 +1,27 @@
+{
+  "name": "katbook-testbench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-grade Playwright + TypeScript API test bench for the Katbook API",
+  "type": "commonjs",
+  "scripts": {
+    "test": "cross-env TEST_ENV=dev playwright test",
+    "test:dev": "cross-env TEST_ENV=dev playwright test",
+    "test:staging": "cross-env TEST_ENV=staging playwright test",
+    "test:prod": "cross-env TEST_ENV=prod playwright test",
+    "test:headed": "cross-env TEST_ENV=dev playwright test --headed",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "bootstrap:admin": "cross-env TEST_ENV=dev ts-node scripts/bootstrap-admin.ts"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^26.6.3",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.0",
+    "zod": "^3.23.8"
+  }
+}
