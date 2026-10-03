@@ -4,6 +4,8 @@ export interface RequestOptions {
   headers?: Record<string, string>;
   params?: Record<string, string | number | boolean>;
   data?: unknown;
+  /** Overrides the default request timeout — for deliberately probing endpoints suspected of hanging. */
+  timeout?: number;
 }
 
 /**
@@ -24,22 +26,22 @@ export class BaseApiClient {
   }
 
   get(path: string, options: RequestOptions = {}): Promise<APIResponse> {
-    return this.request.get(path, { headers: this.headers(options.headers), params: options.params });
+    return this.request.get(path, { headers: this.headers(options.headers), params: options.params, timeout: options.timeout });
   }
 
   post(path: string, options: RequestOptions = {}): Promise<APIResponse> {
-    return this.request.post(path, { headers: this.headers(options.headers), data: options.data });
+    return this.request.post(path, { headers: this.headers(options.headers), data: options.data, timeout: options.timeout });
   }
 
   put(path: string, options: RequestOptions = {}): Promise<APIResponse> {
-    return this.request.put(path, { headers: this.headers(options.headers), data: options.data });
+    return this.request.put(path, { headers: this.headers(options.headers), data: options.data, timeout: options.timeout });
   }
 
   patch(path: string, options: RequestOptions = {}): Promise<APIResponse> {
-    return this.request.patch(path, { headers: this.headers(options.headers), data: options.data });
+    return this.request.patch(path, { headers: this.headers(options.headers), data: options.data, timeout: options.timeout });
   }
 
   delete(path: string, options: RequestOptions = {}): Promise<APIResponse> {
-    return this.request.delete(path, { headers: this.headers(options.headers), data: options.data });
+    return this.request.delete(path, { headers: this.headers(options.headers), data: options.data, timeout: options.timeout });
   }
 }

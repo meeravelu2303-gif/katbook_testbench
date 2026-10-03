@@ -22,3 +22,41 @@ export const SEED = {
   CONTENT_DEVELOPER_USER_TYPE_ID: '603f81252e47b525cc91a3b6',
   CONTENT_UPLOADER_USER_TYPE_ID: '60408011661a362a8078f040',
 } as const;
+
+/**
+ * A real, verified-working curriculum-tree chain under SEED.COMPANY_ID, discovered (not
+ * fabricated) by walking the actual live data: GET /v1/attribute/:company/:typeOfBook/
+ * :country/:institutionType (returned the existing Attribute + its 4 tiers) -> GET
+ * /v1/parent/variables/.../:tierId/:code (Tier1, code "Numeric" -> a real top-level
+ * "Volume" variable) -> GET /v1/variable/get/:variableId (that Volume's real unit+session
+ * child pair). Confirmed end-to-end by successfully creating and deleting a real
+ * Highlighter document with these exact IDs (POST /v1/highlighter/create).
+ *
+ * This is the "Publisher" typeOfBook / "INDIA" country / "Corporate" institutionType combo
+ * — reuse this chain instead of re-discovering or fabricating curriculum data for any
+ * domain that needs a real Variable/Attribute reference (Highlighter, Hyperlink,
+ * VideoScript, HandBook, and later diary/planning).
+ */
+export const CURRICULUM = {
+  TYPE_OF_BOOK_ID: '6007cbe59052d71fec82fef0', // Booktype "Publisher"
+  COUNTRY_ID: '5fe7156ab8646615d4e4e256', // Country "INDIA"
+  INSTITUTION_TYPE_ID: '60082edc9835722bf4b5ca94', // InstitutionType "Corporate"
+  ATTRIBUTE_ID: '607935f351089845449ba679',
+  TIER_1_ID: '607935f351089845449ba675', // "Tier1 / Volume", codeFormat "Numeric"
+  TOP_VARIABLE_ID: '6079362f51089845449ba68a', // "Volume 21" — a real Tier1 node
+  UNIT_ID: '6079364451089845449ba6ab', // "Issue 4" — real child of TOP_VARIABLE_ID
+  SESSION_ID: '6079367e51089845449ba6bc', // "Introduction" — real child of UNIT_ID
+
+  /**
+   * ContentController.createContent's real prerequisite (confirmed live, not documented
+   * anywhere): the target variableDetails[].variableId must already have `coverImage` AND
+   * `language` set — TOP_VARIABLE_ID/SESSION_ID above don't have these, but UNIT_ID
+   * ("Issue 4") does. Discovered via GET /v1/content/kaudio/q?sessionId=... (a real,
+   * pre-existing KAudio log's populated unitId showed coverImage+language), then confirmed
+   * by successfully creating a real Content document with
+   * { tierDetails: [{tierId: TIER_2_ID}], variableDetails: [{variableId: UNIT_ID}] }. Use
+   * TIER_2_ID (not TIER_1_ID) when referencing UNIT_ID — UNIT_ID's own tierId is Tier2, and
+   * createContent requires the submitted tierId(s) to match the variable's actual tier.
+   */
+  TIER_2_ID: '607935f351089845449ba676', // "Tier2 / Issue" — UNIT_ID's actual tier
+} as const;
