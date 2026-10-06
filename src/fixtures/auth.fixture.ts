@@ -10,16 +10,43 @@ import { apiConfig, actorCredentials, isActorConfigured, ActorRole } from '../co
  */
 const LOGIN_ENDPOINT: Record<ActorRole, string> = {
   admin: '/v1/admin/login',
-  institution: '/v1/institution/login',
-  // no dedicated /v1/user/login exists in the spec — end-user tokens come from the
-  // institution login flow, so the "user" role reuses that endpoint.
-  user: '/v1/institution/login',
+  /**
+   * CRITICAL, fixed 2026-10-05 (institution domain pass) — this used to point at
+   * `/v1/institution/login`. That is `IASInstitutionController.institutionLogin`, a
+   * completely different, Admin-only, company-level endpoint (body: companyId +
+   * institution password, requires the caller's OWN token to already be an Admin's) — not
+   * an end-user personal login at all. Worse: confirmed from source, that handler
+   * references `user.userTypeId` on its very first line, but `user` (`req.user`) is never
+   * declared anywhere in the function and the route has no auth middleware — a plain
+   * `ReferenceError` on every single call. This codebase has no `unhandledRejection`
+   * handler anywhere, so on Node 24 that crashes the whole backend process (pm2 restarts
+   * it per `ecosystem.config.js`, but the backend bounces for everyone using the shared
+   * dev server in the meantime). Never confirmed by actually calling it — decided from
+   * source-reading alone, consistent with this project's policy of documenting severe
+   * findings without detonating them.
+   * The real end-user personal login is `InstitutionUserController.InstitutionUserLogin`
+   * at `/v1/insitution/user/login` (note the real route's spelling — not a typo in this
+   * file) — body `{userName, password, companyId}`, no auth required, and confirmed
+   * structurally safe (no undeclared-variable crash) by direct source reading. See
+   * `src/client/ias-institution.client.ts` and `institution-user.client.ts` for the full
+   * writeup of both endpoints.
+   */
+  institution: '/v1/insitution/user/login',
+  user: '/v1/insitution/user/login',
   offline: '/v1/offline/user/login',
+  // ContentUserLogin — the only login route that accepts a non-Admin internal-staff User
+  // (Content Developer/Uploader); /v1/admin/login hard-rejects anything but the Admin
+  // usertype code. See api.config.ts's actorCredentials comment for why this actor exists.
+  contentUploader: '/v1/content/user/login',
 };
 
-function buildLoginPayload(role: ActorRole, identifier: string, password: string): Record<string, string> {
-  if (role === 'admin') {
+function buildLoginPayload(role: ActorRole, identifier: string, password: string, companyId?: string): Record<string, string> {
+  if (role === 'admin' || role === 'contentUploader') {
     return { userName: identifier, password };
+  }
+  if (role === 'institution' || role === 'user') {
+    // InstitutionUserLogin's required fields, confirmed from source: userName, password, companyId.
+    return { userName: identifier, password, ...(companyId ? { companyId } : {}) };
   }
   return {
     userName: identifier,
@@ -40,10 +67,10 @@ export async function loginAs(request: APIRequestContext, role: ActorRole): Prom
   if (!isActorConfigured(role)) {
     throw new AuthenticationError(`No credentials configured for actor role "${role}"`);
   }
-  const { username, password } = actorCredentials[role];
+  const { username, password, companyId } = actorCredentials[role];
   const response = await request.post(`${apiConfig.baseURL}${LOGIN_ENDPOINT[role]}`, {
     headers: { 'Content-Type': 'application/json' },
-    data: buildLoginPayload(role, username!, password!),
+    data: buildLoginPayload(role, username!, password!, companyId),
   });
 
   if (!response.ok()) {

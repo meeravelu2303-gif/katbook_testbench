@@ -20,10 +20,13 @@ const EnvSchema = z.object({
   ADMIN_PASSWORD: z.string().optional(),
   INSTITUTION_USERNAME: z.string().optional(),
   INSTITUTION_PASSWORD: z.string().optional(),
+  INSTITUTION_COMPANY_ID: z.string().optional(),
   USER_USERNAME: z.string().optional(),
   USER_PASSWORD: z.string().optional(),
   OFFLINE_USERNAME: z.string().optional(),
   OFFLINE_PASSWORD: z.string().optional(),
+  CONTENT_UPLOADER_USERNAME: z.string().optional(),
+  CONTENT_UPLOADER_PASSWORD: z.string().optional(),
 
   BUGZILLA_URL: z.string().optional(),
   BUGZILLA_API_KEY: z.string().optional(),

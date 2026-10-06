@@ -59,4 +59,22 @@ export const CURRICULUM = {
    * createContent requires the submitted tierId(s) to match the variable's actual tier.
    */
   TIER_2_ID: '607935f351089845449ba676', // "Tier2 / Issue" — UNIT_ID's actual tier
+
+  /**
+   * A real 4th level under UNIT_ID, discovered while building the `planning` domain test
+   * suite (2026-10-03): `GET /v1/variable/get/:id` against UNIT_ID returns its real children
+   * nested two levels deep (`unitId`/`unitName` = SESSION_ID/"Introduction", then a real
+   * `sessionId`/`sessionName` leaf below that — the naming is confusing: SESSION_ID itself
+   * is NOT the leaf, it's an intermediate "unit"-like level in this API's own output). This
+   * leaf (`sessionId: 6079...a6cd`, "Rediscovering India") is the only node in the whole
+   * CURRICULUM chain confirmed to have `sessionCode` set (required by
+   * `PlanningPreparationController.getAllUnselectedContentPreparationActivities`/
+   * `getAllSelectedContentPreparationActivities`, confirmed live: SESSION_ID itself 400s
+   * "Variable was not found!." for lacking it, this id succeeds with real pre-existing
+   * `ContentPreparation` data). Also resolves the 4-level-deep `variableDetails` chain
+   * `dairy-uploading.spec.ts`'s consolidated-report test was blocked on (section 16) —
+   * `[TOP_VARIABLE_ID, UNIT_ID, SESSION_ID, LEAF_SESSION_ID]` is a genuine 4-level
+   * parent-child chain, confirmed, not fabricated.
+   */
+  LEAF_SESSION_ID: '607936a251089845449ba6cd', // "Rediscovering India" — real child of SESSION_ID, has sessionCode set
 } as const;

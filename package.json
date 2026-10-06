@@ -12,7 +12,8 @@
     "test:headed": "cross-env TEST_ENV=dev playwright test --headed",
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit",
-    "bootstrap:admin": "cross-env TEST_ENV=dev ts-node scripts/bootstrap-admin.ts"
+    "bootstrap:admin": "cross-env TEST_ENV=dev ts-node scripts/bootstrap-admin.ts",
+    "bootstrap:content-uploader": "cross-env TEST_ENV=dev ts-node scripts/bootstrap-content-uploader.ts"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
